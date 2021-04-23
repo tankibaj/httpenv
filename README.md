@@ -1,0 +1,1 @@
+A very simple image serving environment variables over HTTP. I use this image to test kubernetes ClusterIP service.
