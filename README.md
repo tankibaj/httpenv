@@ -1,52 +1,133 @@
 A very simple image serving environment variables over HTTP. I use this image to test kubernetes ClusterIP service.
 
+<br/>
 
-## Qick Start
 
----
----
+## Quick Start
 
-#### Create deployment and ClusterIp service
+### Docker
+
+- Run docker container and expose port
+
+  ```bash
+  docker run --rm -p8888:8888 thenaim/httpenv
+  ```
+
+  
+
+- Test endpoint
+
+  ```bash
+  curl http://localhost:8888
+  
+  curl http://localhost:8888/blue
+  
+  curl http://localhost:8888/green
+  
+  curl http://localhost:8888/red
+  ```
+
+<br/>
+
+### Kubernetes
+
+#### Create deployment and service
 
 - In another window, watch the pods (to see when they are created):
 
-    `kubectl get pods -w`
+    ```bash
+    kubectl get pods -w
+    ```
+
+    
 
 - Create a deployment for this very lightweight HTTP server:
 
-    `kubectl create deployment httpenv --image=thenaim/httpenv`
+    ```bash
+    kubectl create deployment httpenv --image=thenaim/httpenv
+    ```
+
+    
 
 - Scale it to 10 replicas:
 
-    `kubectl scale deployment httpenv --replicas=10`
+    ```bash
+    kubectl scale deployment httpenv --replicas=10
+    ```
+    
+    
 
 
 - Expose the HTTP port of our server. We'll create a default ClusterIP service
 
-    `kubectl expose deployment httpenv --port 8888`
+    ```bash
+    kubectl expose deployment httpenv --port 8888
+    ```
+
+    
 
 - Look up which IP address was allocated:
 
-    `kubectl get service`
+    ```bash
+    kubectl get service
+    ```
+    
+    
 
 ---
 
-#### Test ClusterIP service
+#### Test endpoint
 
-- Run shpod if not on Linux host so we can access internal ClusterIP
+- Let's obtain the IP address that was allocated for our service:
 
     ```bash
-    kubectl apply -f https://raw.githubusercontent.com/tankibaj/public-files/main/kubernetes/shpod.yaml
-    kubectl attach --namespace=shpod -ti shpod
+    IP=$(kubectl get svc httpenv -o go-template --template '{{ .spec.clusterIP }}')
+    ```
+    
+
+
+
+- Generate URL
+
+  ```bash
+  echo http://$IP:8888/
+  ```
+
+
+
+- Run Busybox to access ClusterIP
+
+    ```bash
+    kubectl run busybox --image=radial/busyboxplus:curl -i --tty
     ```
 
-- Let's obtain the IP address that was allocated for our service, programmatically:
 
-    `IP=$(kubectl get svc httpenv -o go-template --template '{{ .spec.clusterIP }}')`
+
 
 - Send a few requests:
 
-    `curl http://$IP:8888/`
+    ```bash
+    curl http://$IP:8888/
+    ```
+
+    
 
 - Too much output? Filter it with jq:
-    `curl -s http://$IP:8888/ | jq .HOSTNAME`
+
+    ```bash
+    curl -s http://$IP:8888/ | jq .HOSTNAME
+    ```
+
+    
+
+- Others
+
+  ```bash
+  curl http://$IP:8888/blue
+  
+  curl http://$IP:8888/green
+  
+  curl http://$IP:8888/red
+  ```
+
+  
