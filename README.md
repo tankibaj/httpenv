@@ -74,8 +74,6 @@ A very simple image serving environment variables over HTTP. I use this image to
     
     
 
----
-
 #### Test endpoint
 
 - Let's obtain the IP address that was allocated for our service:
